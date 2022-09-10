@@ -1,3 +1,3 @@
 const PostgresService = require('./postgres');
 
-module.exports = PostgresService;
+module.exports = new PostgresService();
