@@ -46,6 +46,14 @@ class AlbumsService {
     return album;
   }
 
+  getSongsByAlbumId(id) {
+    const song = this.songs.filter((n) => n.albumId === id);
+    if (!song) {
+      throw new NotFoundError('Lagu tidak ditemukan');
+    }
+    return song;
+  }
+
   editAlbumById(id, { name, year }) {
     const index = this.albums.findIndex((album) => album.id === id);
 
@@ -65,6 +73,15 @@ class AlbumsService {
     if (index === -1) {
       throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
     }
+
+    let songs = this.getSongsByAlbumId(id);
+    songs.forEach( (element, index) => {
+      this.songs[index] = {
+        ...this.songs[index],
+        'albumId': null
+      };
+    });
+    
     this.albums.splice(index, 1);
   }
 }
