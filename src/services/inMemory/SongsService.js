@@ -3,8 +3,9 @@ const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
 class SongsService {
-  constructor() {
-    this.songs = [];
+  constructor(storage) {
+    this.songs = storage.songs;
+    this.albums = storage.albums;
   }
 
   addSong({
