@@ -1,12 +1,23 @@
 const InvariantError = require('../../exceptions/InvariantError');
-const { SongPayloadSchema } = require('./schema');
+const { SongPayloadSchema, SongSearchPayloadSchema } = require('./schema');
 
 const SongsValidator = {
-  validateSongPayload: (payload) => {
-    const validationResult = SongPayloadSchema.validate(payload);
-    if (validationResult.error) {
+  validateSongPayload: async (payload) => {
+    const validationAsyncResult = await SongPayloadSchema.validateAsync(payload)
+    .catch (error => {
+      throw new InvariantError(error.message);
+    });
+
+    return validationAsyncResult;
+  },
+
+  validateSongSearchPayload: (payload) => {
+    const validationResult = SongSearchPayloadSchema.validate(payload)
+    if(validationResult.error) {
       throw new InvariantError(validationResult.error.message);
     }
+
+    return validationResult.value;
   },
 };
 

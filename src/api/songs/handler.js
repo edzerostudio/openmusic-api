@@ -54,16 +54,9 @@ class SongsHandler {
   }
 
   async getSongsHandler(request) {
-    const { title, performer } = request.query;
-
-    let songs = await this.service.getSongs();
-
-    if (typeof title !== 'undefined') {
-      songs = songs.filter((n) => n.title.toLowerCase().indexOf(title.toLowerCase()) >= 0);
-    }
-    if (typeof performer !== 'undefined') {
-      songs = songs.filter((n) => n.performer.toLowerCase().indexOf(performer.toLowerCase()) >= 0);
-    }
+    const query = this.validator.validateSongSearchPayload(request.query);
+    
+    let songs = await this.service.getSongs(query);
 
     songs = songs.map((obj) => ({
       id: obj.id,

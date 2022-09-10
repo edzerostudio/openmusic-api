@@ -28,8 +28,17 @@ class SongsService {
     return id;
   }
 
-  getSongs() {
-    return this.songs;
+  getSongs(param) {
+    let songs = this.songs, length = Object.keys(param).length;
+    
+    if(length) {
+      for (const [key, value] of Object.entries(param)) {
+        if (typeof value !== 'undefined') {
+          songs = songs.filter((n) => n[key].toLowerCase().indexOf(value.toLowerCase()) >= 0);
+        }
+      }
+    }
+    return songs;
   }
 
   getSongById(id) {
