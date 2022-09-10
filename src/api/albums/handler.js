@@ -6,6 +6,7 @@ class AlbumsHandler {
     this.validator = validator;
 
     this.postAlbumHandler = this.postAlbumHandler.bind(this);
+    this.getAlbumsHandler = this.getAlbumsHandler.bind(this);
     this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
     this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);
     this.deleteAlbumByIdHandler = this.deleteAlbumByIdHandler.bind(this);
@@ -46,6 +47,17 @@ class AlbumsHandler {
       console.error(error);
       return response;
     }
+  }
+
+  async getAlbumsHandler() {
+    let albums = await this.service.getAlbums();
+
+    return {
+      status: 'success',
+      data: {
+        albums,
+      },
+    };
   }
 
   async getAlbumByIdHandler(request, h) {
