@@ -11,7 +11,7 @@ class AlbumsService {
   }
 
   addAlbum({ name, year }) {
-    const id = nanoid(16);
+    const id = 'album-'.concat(nanoid(16));
 
     const newAlbum = {
       name, year, id,
