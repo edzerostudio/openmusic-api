@@ -87,6 +87,12 @@ class AlbumsService {
     if (!result.rows.length) {
       throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan');
     }
+
+    const query2 = {
+      text: 'UPDATE songs SET albumId = null WHERE albumId = $1',
+      values: [id],
+    };
+    await this.pool.query(query2);
   }
 }
 
