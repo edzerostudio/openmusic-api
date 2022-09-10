@@ -1,4 +1,15 @@
 const Joi = require('joi');
+const NotFoundError = require('../../exceptions/NotFoundError');
+const { albumsService } = require('../../services');
+
+const checkAlbum = async (value) => {
+    if (typeof value !== 'undefined' && value !== null) {
+        let album = await albumsService.findAlbum(value);
+        if (!album) {
+            throw new NotFoundError('\"albumId"\ not found');
+        }
+    }
+};
 
 const SongPayloadSchema = Joi.object({
   title: Joi.string().required(),
@@ -6,7 +17,9 @@ const SongPayloadSchema = Joi.object({
   genre: Joi.string().required(),
   performer: Joi.string().required(),
   duration: Joi.number().optional(),
-  albumId: Joi.string().optional(),
+  albumId: Joi.string().optional().external(checkAlbum),
+});
+
 const SongSearchPayloadSchema = Joi.object({
   title: Joi.string().optional(),
   performer: Joi.string().optional(),

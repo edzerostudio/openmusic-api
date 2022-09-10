@@ -32,6 +32,12 @@ class AlbumsService {
     return this.albums;
   }
 
+  findAlbum(id) {
+    const album = this.albums.filter((n) => n.id === id)[0];
+    return album??false;
+  }
+
+
   getAlbumById(id) {
     const album = this.albums.filter((n) => n.id === id)[0];
     if (!album) {

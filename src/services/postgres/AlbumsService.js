@@ -43,6 +43,16 @@ class AlbumsService {
     return result.rows[0];
   }
 
+  async findAlbum(id) {
+    const query = {
+      text: 'SELECT * FROM albums WHERE id = $1',
+      values: [id],
+    };
+    const result = await this.pool.query(query);
+
+    return result.rows[0]??false;
+  }
+
   async getSongsByAlbumId(id) {
     const query = {
       text: 'SELECT * FROM songs WHERE "albumId" = $1',
