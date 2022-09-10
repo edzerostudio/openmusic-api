@@ -11,7 +11,7 @@ class SongsService {
   addSong({
     title, year, genre, performer, duration = null, albumId = null,
   }) {
-    const id = nanoid(16);
+    const id = 'song-'.concat(nanoid(16));
 
     const newSong = {
       title, year, genre, performer, duration, albumId, id,
