@@ -1,11 +1,16 @@
 const InvariantError = require('../../exceptions/InvariantError');
+const NotFoundError = require('../../exceptions/NotFoundError');
 const { SongPayloadSchema, SongSearchPayloadSchema } = require('./schema');
 
 const SongsValidator = {
   validateSongPayload: async (payload) => {
     const validationAsyncResult = await SongPayloadSchema.validateAsync(payload)
     .catch (error => {
-      throw new InvariantError(error.message);
+      if(error instanceof NotFoundError) {
+        throw new NotFoundError(error.message);
+      } else {
+        throw new InvariantError(error.message);  
+      }
     });
 
     return validationAsyncResult;
