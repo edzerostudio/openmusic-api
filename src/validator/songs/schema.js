@@ -4,7 +4,7 @@ const { albumsService } = require('../../services');
 
 const checkAlbum = async (value) => {
     if (typeof value !== 'undefined' && value !== null) {
-        let album = await albumsService.findAlbum(value);
+        let album = await albumsService.checkAlbum(value);
         if (!album) {
             throw new NotFoundError('\"albumId"\ not found');
         }
