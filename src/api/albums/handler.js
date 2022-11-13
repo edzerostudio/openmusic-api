@@ -1,6 +1,9 @@
+const config = require('../../utils/config');
+
 class AlbumsHandler {
-  constructor(service, validator) {
+  constructor(service, storageService, validator) {
     this._service = service;
+    this._storageService = storageService;
     this._validator = validator;
   }
 
@@ -21,8 +24,48 @@ class AlbumsHandler {
     return response;
   }
 
+  async postAlbumCoverHandler(request, h) {
+    const { cover } = request.payload;
+    const { id } = request.params;
+    this._validator.validateAlbumCoverHeaders(cover.hapi.headers);
+
+    const fileLocation = await this._storageService.writeFile(cover, cover.hapi);
+    const fileUrl = config.app.storage === config.storage.local ? `http://${process.env.HOST}:${process.env.PORT}/upload/images/${fileLocation}` : fileLocation;
+    await this._service.uploadAlbumCover(id, fileUrl);
+
+    const response = h.response({
+      status: 'success',
+      message: 'Cover album berhasil diunggah',
+      data: {
+        fileUrl,
+      },
+    });
+    response.code(201);
+    return response;
+  }
+
+  async postAlbumLikesHandler(request, h) {
+    const { id: albumId } = request.params;
+    const { id: userId } = request.auth.credentials;
+
+    await this._service.getAlbumById(albumId);
+    const likes = await this._service.verifyAlbumLikes({ albumId, userId });
+    if (likes) {
+      await this._service.deleteAlbumLikes({ albumId, userId });
+    } else {
+      await this._service.addAlbumLikes({ albumId, userId });
+    }
+
+    const response = h.response({
+      status: 'success',
+      message: 'Album berhasil dilike',
+    });
+    response.code(201);
+    return response;
+  }
+
   async getAlbumsHandler() {
-    let albums = await this._service.getAlbums();
+    const albums = await this._service.getAlbums();
 
     return {
       status: 'success',
@@ -32,20 +75,15 @@ class AlbumsHandler {
     };
   }
 
-  async getAlbumByIdHandler(request, h) {
+  async getAlbumByIdHandler(request) {
     const { id } = request.params;
     let album = await this._service.getAlbumById(id);
-    let songs = await this._service.getSongsByAlbumId(id);
-    songs = songs.map((obj) => ({
-      id: obj.id,
-      title: obj.title,
-      performer: obj.performer,
-    }));
-
+    const songs = await this._service.getSongsByAlbumId(id);
     album = ({
       id: album.id,
       name: album.name,
       year: album.year,
+      coverUrl: album.cover_url ?? null,
       songs,
     });
 
@@ -57,7 +95,21 @@ class AlbumsHandler {
     };
   }
 
-  async putAlbumByIdHandler(request, h) {
+  async getAlbumLikesHandler(request, h) {
+    const { id } = request.params;
+    const likes = await this._service.getAlbumLikes(id);
+
+    const response = h.response({
+      status: 'success',
+      data: {
+        likes: likes.count,
+      },
+    }).header('X-Data-Source', likes.dataSource);
+    response.code(200);
+    return response;
+  }
+
+  async putAlbumByIdHandler(request) {
     this._validator.validateAlbumPayload(request.payload);
     const { id } = request.params;
 
@@ -69,7 +121,7 @@ class AlbumsHandler {
     };
   }
 
-  async deleteAlbumByIdHandler(request, h) {
+  async deleteAlbumByIdHandler(request) {
     const { id } = request.params;
     await this._service.deleteAlbumById(id);
     return {
