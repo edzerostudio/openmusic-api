@@ -4,20 +4,20 @@ const { playlistsService, usersService } = require('../../services');
 
 const checkPlaylist = async (value) => {
   if (typeof value !== 'undefined' && value !== null) {
-      let playlist = await playlistsService.checkPlaylist(value);
-      if (!playlist) {
-          throw new NotFoundError('\"playlistId "\ not found');
-      }
+    const playlist = await playlistsService.checkPlaylist(value);
+    if (!playlist) {
+      throw new NotFoundError('"playlistId " not found');
+    }
   }
 };
 
 const checkUser = async (value) => {
-    if (typeof value !== 'undefined' && value !== null) {
-        let user = await usersService.checkUser(value);
-        if (!user) {
-            throw new NotFoundError('\"userId"\ not found');
-        }
+  if (typeof value !== 'undefined' && value !== null) {
+    const user = await usersService.checkUser(value);
+    if (!user) {
+      throw new NotFoundError('"userId" not found');
     }
+  }
 };
 
 const CollaborationPayloadSchema = Joi.object({

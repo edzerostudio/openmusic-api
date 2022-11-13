@@ -1,4 +1,5 @@
 const { Pool } = require('pg');
+const CacheService = require('../redis/CacheService');
 const AuthenticationsService = require('./AuthenticationsService');
 const UsersService = require('./UsersService');
 const CollaborationsService = require('./CollaborationsService');
@@ -8,7 +9,8 @@ const SongsService = require('./SongsService');
 
 class StorageService {
   constructor() {
-    this._pool = new Pool();
+    this.pool = new Pool();
+    this.cacheService = new CacheService();
 
     this.authenticationsService = new AuthenticationsService(this);
     this.usersService = new UsersService(this);
