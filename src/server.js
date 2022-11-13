@@ -2,18 +2,39 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
 
-const ClientError = require('./exceptions/ClientError');
-
-const { authentications, users, collaborations, playlists, albums, songs } = require('./api');
-const { authenticationsService, usersService, collaborationsService, playlistsService, albumsService, songsService } = require('./services');
-const { AuthenticationsValidator, UsersValidator, CollaborationsValidator, PlaylistsValidator, AlbumsValidator, SongsValidator } = require('./validator');
+const config = require('./utils/config');
+const {
+  authentications, users, collaborations, playlists, albums, songs, _exports, uploads,
+} = require('./api');
+const {
+  authenticationsService,
+  usersService,
+  collaborationsService,
+  playlistsService,
+  albumsService,
+  songsService,
+  storageService,
+  producerService,
+} = require('./services');
+const {
+  AuthenticationsValidator,
+  UsersValidator,
+  CollaborationsValidator,
+  PlaylistsValidator,
+  AlbumsValidator,
+  SongsValidator,
+  ExportsValidator,
+  UploadsValidator,
+} = require('./validator');
 const TokenManager = require('./tokenize/TokenManager');
+const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
   const server = Hapi.server({
-    port: process.env.PORT,
-    host: process.env.HOST,
+    port: config.app.port,
+    host: config.app.host,
     routes: {
       cors: {
         origin: ['*'],
@@ -25,15 +46,18 @@ const init = async () => {
     {
       plugin: Jwt,
     },
+    {
+      plugin: Inert,
+    },
   ]);
 
   server.auth.strategy('openmusic_jwt', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: config.jwt.accessToken,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+      maxAgeSec: config.jwt.maxAgeSec,
     },
     validate: (artifacts) => ({
       isValid: true,
@@ -80,6 +104,7 @@ const init = async () => {
       plugin: albums,
       options: {
         service: albumsService,
+        storageService,
         validator: AlbumsValidator,
       },
     },
@@ -90,14 +115,28 @@ const init = async () => {
         validator: SongsValidator,
       },
     },
+    {
+      plugin: _exports,
+      options: {
+        service: producerService,
+        playlistService: playlistsService,
+        validator: ExportsValidator,
+      },
+    },
+    {
+      plugin: uploads,
+      options: {
+        service: storageService,
+        validator: UploadsValidator,
+      },
+    },
   ]);
 
   server.ext('onPreResponse', (request, h) => {
     // mendapatkan konteks response dari request
     const { response } = request;
-    
+
     if (response instanceof Error) {
- 
       // penanganan client error secara internal.
       if (response instanceof ClientError) {
         const newResponse = h.response({
@@ -115,6 +154,7 @@ const init = async () => {
       const newResponse = h.response({
         status: 'error',
         message: response.message,
+        // message: 'terjadi kegagalan pada server kami',
       });
       newResponse.code(500);
       return newResponse;
