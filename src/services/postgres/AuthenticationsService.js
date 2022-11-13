@@ -2,7 +2,7 @@ const InvariantError = require('../../exceptions/InvariantError');
 
 class AuthenticationsService {
   constructor(storage) {
-    this._pool = storage._pool;
+    this._pool = storage.pool;
   }
 
   async addRefreshToken(token) {
@@ -10,7 +10,7 @@ class AuthenticationsService {
       text: 'INSERT INTO authentications VALUES($1)',
       values: [token],
     };
-    
+
     await this._pool.query(query);
   }
 
@@ -22,7 +22,7 @@ class AuthenticationsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new InvariantError('Refresh token tidak valid');
     }
   }
