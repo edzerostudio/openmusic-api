@@ -13,7 +13,7 @@ class CacheService {
     this._client.connect();
   }
 
-  set(key, value, expirationInSecond = 3600) {
+  set(key, value, expirationInSecond = 1800) {
     return new Promise((resolve, reject) => {
       this._client.set(key, value, 'EX', expirationInSecond, (error, ok) => {
         if (error) {

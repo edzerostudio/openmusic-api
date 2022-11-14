@@ -6,19 +6,6 @@ const routes = (handler) => [
   },
   {
     method: 'POST',
-    path: '/albums/{id}/covers',
-    handler: (request, h) => handler.postAlbumCoverHandler(request, h),
-    options: {
-      payload: {
-        maxBytes: 512000,
-        allow: 'multipart/form-data',
-        multipart: true,
-        output: 'stream',
-      },
-    },
-  },
-  {
-    method: 'POST',
     path: '/albums/{id}/likes',
     handler: (request, h) => handler.postAlbumLikesHandler(request, h),
     options: {

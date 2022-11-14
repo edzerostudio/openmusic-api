@@ -3,10 +3,11 @@ const path = require('path');
 const routes = (handler) => [
   {
     method: 'POST',
-    path: '/upload/images',
-    handler: (request, h) => handler.postUploadImageHandler(request, h),
+    path: '/albums/{id}/covers',
+    handler: (request, h) => handler.postAlbumCoverHandler(request, h),
     options: {
       payload: {
+        maxBytes: 512000,
         allow: 'multipart/form-data',
         multipart: true,
         output: 'stream',

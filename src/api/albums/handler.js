@@ -1,9 +1,6 @@
-const config = require('../../utils/config');
-
 class AlbumsHandler {
-  constructor(service, storageService, validator) {
+  constructor(service, validator) {
     this._service = service;
-    this._storageService = storageService;
     this._validator = validator;
   }
 
@@ -18,26 +15,6 @@ class AlbumsHandler {
       message: 'Album berhasil ditambahkan',
       data: {
         albumId,
-      },
-    });
-    response.code(201);
-    return response;
-  }
-
-  async postAlbumCoverHandler(request, h) {
-    const { cover } = request.payload;
-    const { id } = request.params;
-    this._validator.validateAlbumCoverHeaders(cover.hapi.headers);
-
-    const fileLocation = await this._storageService.writeFile(cover, cover.hapi);
-    const fileUrl = config.app.storage === config.storage.local ? `http://${process.env.HOST}:${process.env.PORT}/upload/images/${fileLocation}` : fileLocation;
-    await this._service.uploadAlbumCover(id, fileUrl);
-
-    const response = h.response({
-      status: 'success',
-      message: 'Cover album berhasil diunggah',
-      data: {
-        fileUrl,
       },
     });
     response.code(201);
@@ -83,7 +60,7 @@ class AlbumsHandler {
       id: album.id,
       name: album.name,
       year: album.year,
-      coverUrl: album.cover_url ?? null,
+      coverUrl: album.cover ?? null,
       songs,
     });
 

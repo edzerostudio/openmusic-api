@@ -1,22 +1,26 @@
 const config = require('../../utils/config');
 
 class UploadsHandler {
-  constructor(service, validator) {
+  constructor(service, albumsService, validator) {
     this._service = service;
+    this._albumsService = albumsService;
     this._validator = validator;
   }
 
-  async postUploadImageHandler(request, h) {
-    const { data } = request.payload;
-    this._validator.validateImageHeaders(data.hapi.headers);
+  async postAlbumCoverHandler(request, h) {
+    const { cover } = request.payload;
+    const { id } = request.params;
+    this._validator.validateImageHeaders(cover.hapi.headers);
 
-    const fileLocation = await this._service.writeFile(data, data.hapi);
+    const fileLocation = await this._service.writeFile(cover, cover.hapi);
+    const fileUrl = config.app.storage === config.storage.local ? `http://${process.env.HOST}:${process.env.PORT}/upload/images/${fileLocation}` : fileLocation;
+    await this._albumsService.uploadAlbumCover(id, fileUrl);
 
     const response = h.response({
       status: 'success',
-      message: 'Gambar berhasil diunggah',
+      message: 'Cover album berhasil diunggah',
       data: {
-        fileUrl: config.app.storage === config.storage.local ? `http://${process.env.HOST}:${process.env.PORT}/upload/images/${fileLocation}` : fileLocation,
+        fileUrl,
       },
     });
     response.code(201);
