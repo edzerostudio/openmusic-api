@@ -5,7 +5,7 @@ const PlaylistsValidator = require('./playlists');
 const AlbumsValidator = require('./albums');
 const SongsValidator = require('./songs');
 const ExportsValidator = require('./exports');
-const UploadsValidator = require('./exports');
+const UploadsValidator = require('./uploads');
 
 module.exports = {
   AuthenticationsValidator,
